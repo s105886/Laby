@@ -1,0 +1,63 @@
+---
+title: "lab2"
+author: "Julia Dudkiewicz"
+date: "2026-10-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = F, warning = F)
+```
+
+```{r}
+install.packages("recticulate")
+library(recticulate) 
+library(rvest) 
+library(chromote)
+library(httr2)
+library(tidyverse)
+
+Sys.setenv(CHROMOTE_CHROME ="C:/Program Files/Google/Chrome/Application/chrome.exe")
+
+imbd_2025 <- read_html_live("https://www.imdb.com/list/ls569166685/")
+```
+
+```{r}
+
+film_name_test <- imbd_2025 |>
+  html_elements("h4.ipc-title__text") |>
+  html_text2()
+
+film_name_test_2 <- imbd_2025 |>
+  html_elements(xpath = "/html/body/div/main/div/section/div/section/div/div/section/div/ul/li/div/div/div/div/div/div/ul/div/a/h4") |>
+  html_text2()
+
+Duration_film_test <- imbd_2025 |>
+  html_elements(xpath = "/html/body/div/main/div/section/div/section/div/div/section/div/ul/li/div/div/div/div/div/div/ul/li[2]") |>
+  html_text2()
+
+Rate_film_test <- imbd_2025 |>
+  html_elements(xpath = "/html/body/div/main/div/section/div/section/div/div/section/div/ul/li/div/div/div/div/div/span/div/span/span[1]") |>
+  html_text2()
+
+Votes_film_test <- imbd_2025 |>
+  html_elements(xpath = "/html/body/div/main/div/section/div/section/div/div/section/div/ul/li/div/div/div/div/div/span/div/span/span[2]") |>
+  html_text2()
+
+Films <- data_frame(Film_name = film_name_test_2,
+                    Duration = Duration_film_test,
+                    Rate = Rate_film_test,
+                    Votes = Votes_film_test)
+write.csv(Films, "Films.csv", row.names = F)
+```
+
+```{r}
+library(rio)
+Data <- import("Films.csv")
+```
+
+#Data cleaning
+
+```{r}
+
+```
