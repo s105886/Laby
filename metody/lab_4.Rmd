@@ -1,0 +1,100 @@
+---
+title: "Otomoto"
+author: "Julia Dudkiewicz"
+date: "2026-11-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(rvest)
+library(dplyr)
+
+#wczytanie strony
+Otomoto <- read_html("https://www.otomoto.pl/osobowe/volvo")
+
+#Analizujemy wyłącznie elementy, które mają atrybut data-id
+car <- Otomoto |> html_elements(xpath = "//article[@data-id]")
+
+data <- data.frame(
+  Name = car %>% html_element(xpath = ".//h2//a") %>% html_text2(),
+  Price = car %>% html_element(xpath = ".//h3") %>% html_text2(),
+  Mileage = car %>% html_element(xpath = ".//dd[@data-parameter='mileage']") %>% html_text2(),
+  Fuel = car %>% html_element(xpath = ".//dd[@data-parameter='fuel_type']") %>% html_text2(),
+  Gearbox = car %>% html_element(xpath = ".//dd[@data-parameter='gearbox']") %>% html_text2(),
+  Voivodeship = car %>% html_element(xpath = ".//li//p") %>% html_text2(),
+  Year = car %>% html_element(xpath = ".//dd[@data-parameter='year']") %>% html_text2()
+)
+
+data
+```
+```{r}
+#Funkcja do przyporządkowania NA w przypadku braków danych
+get_value <- function(nodes, xpath) {
+  out <- nodes %>% html_element(xpath = xpath) %>% html_text2()
+  out[out == ""] <- NA
+  out
+}
+```
+
+```{r}
+#Skrapowanie z uwzględnieniem braków danych
+data_2 <- data.frame(
+  Name = get_value(car,".//h2//a"),
+  Price = get_value(car,".//h3"),
+  Mileage = get_value(car, ".//dd[@data-parameter='mileage']"),
+  Fuel = get_value(car,".//dd[@data-parameter='fuel_type']"),
+  Gearbox = get_value(car,".//dd[@data-parameter='gearbox']"),
+  Voivodeship = get_value(car,".//li//p"),
+  Year = get_value(car,".//dd[@data-parameter='year']")
+)
+
+data_2
+```
+```{r}
+volvo <- function(link){
+  #Wczytywanie strony
+  subpage_volvo <- read_html(link)
+  
+  #Wczytanie określonego ogłoszenia
+  subpage_car <- subpage_volvo %>% html_elements(xpath = "//article[@data-id]")
+  
+  #scraping (zapis do data.frame)
+  subpage_data <- data.frame(
+    Name = get_value(subpage_car,".//h2//a"),
+    Price = get_value(subpage_car,".//h3"),
+    Mileage = get_value(subpage_car, ".//dd[@data-parameter='mileage']"),
+    Fuel = get_value(subpage_car,".//dd[@data-parameter='fuel_type']"),
+    Gearbox = get_value(subpage_car,".//dd[@data-parameter='gearbox']"),
+    Voivodeship = get_value(subpage_car,".//li//p"),
+    Year = get_value(subpage_car,".//dd[@data-parameter='year']")
+  )
+  return(subpage_data)
+}
+#test
+test_1 <- volvo("https://www.otomoto.pl/osobowe/volvo?page=3")
+test_1
+```
+```{r}
+results_volvo <- list()
+
+for(i in 2:30){
+  print(paste("obecnie jesteśmy na stronie numer: ", i))
+  
+  specific_link <- paste0("https://www.otomoto.pl/osobowe/volvo?page=", i)
+  
+  volvo_scraping <- volvo(specific_link)
+  
+  results_volvo[(i-1)] <- volvo_scraping
+}
+
+OtoMoto_Volvo <- do.call(rbind, results_volvo)
+OtoMoto_Volvo <- rbind(data, OtoMoto_Volvo)
+
+write.csv(OtoMoto_Volvo, "OtoMoto_test.csv", row.names = F)
+```
+
+
