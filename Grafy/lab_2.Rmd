@@ -1,0 +1,121 @@
+---
+title: "lab2"
+author: "Julia Dudkiewicz"
+date: "2026-10-28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(igraph)
+MS <- matrix(c(0,2,1,2,0,0,0,0,0,0,0,
+2,0,0,0,0,0,5,1,0,0,0,
+1,0,0,0,0,6,0,4,0,0,0,
+2,0,0,0,3,0,4,0,0,0,0,
+0,0,0,3,0,1,0,1,0,0,0,
+0,0,6,0,1,0,3,0,2,1,0,
+0,5,0,4,0,3,0,0,0,2,0,
+0,1,4,0,1,0,0,0,3,3,0,
+0,0,0,0,0,2,0,3,0,0,2,
+0,0,0,0,0,1,2,3,0,0,5,
+0,0,0,0,0,0,0,0,2,5,0), nrow = 11, ncol = 11, byrow = TRUE,
+dimnames = list(c("a", "b","c","d","e","f","g","h","i","j","k"),
+c("a", "b","c","d","e","f","g","h","i","j","k")))
+#MS
+
+#graf z macierzy sąsiedztwa (nazwy kolumn będą etykietami wierzchołków)
+
+graf1<-graph_from_adjacency_matrix(MS,mode= "undirected", weighted = TRUE, add.colnames = "nazwa")
+V(graf1)
+E(graf1)
+
+#plot(graf1, edge.label = E(graf1)$weight)
+plot(graf1, vertex.label = V(graf1)$nazwa, edge.label = E(graf1)$weight)
+```
+```{r}
+library(igraph)
+# DFS
+dfs(graf1,1)
+
+DFS <- dfs(graf1,1, parent=TRUE, dist=TRUE) #pokazuje kolejność odwiedzania, poprzednika i odległość od korzenia
+DFS
+
+parent<-as.matrix(DFS$parent[2:length(DFS$parent)])
+parent
+
+```
+```{r}
+library(igraph)
+EL<-cbind(2:length(DFS$parent),parent)
+EL
+drzewo <- graph_from_edgelist(EL, directed = FALSE)
+plot(drzewo)
+E(graf1)$color<-"black"
+E(graf1)$width<-1
+E(drzewo)$color<-"red"
+E(drzewo)$width<-3
+plot(graf1, vertex.label = V(graf1)$nazwa,layout=layout_in_circle)
+par(new=T) #rysujemy jeden graf na drugim
+plot(drzewo, vertex.label = V(graf1)$nazwa,layout=layout_in_circle)
+```
+```{r}
+library(igraph)
+bfs(graf1,1)
+BFS <- bfs(graf1,1, parent=TRUE, dist=TRUE)
+parent<-as.matrix(BFS$parent[2:length(BFS$parent)])
+parent
+EL<-cbind(2:length(BFS$parent),parent)
+EL
+drzewo <- graph_from_edgelist(EL, directed = FALSE)
+plot(drzewo)
+E(drzewo)$color<-"red"
+E(drzewo)$width<-3
+plot(graf1, vertex.label = V(graf1)$nazwa,layout=layout_in_circle)
+par(new=T)
+plot(drzewo, vertex.label = V(graf1)$nazwa,layout=layout_in_circle)
+```
+```{r}
+#Zadanie 
+#Zastosować powyższe algorytmy z innym punktem startowym (np. 7). W przypadku bezpośredniego uruchomienia powyższych fragmentów skryptu pojawi się błąd. Zidentyfikować przyczynę tego błędu i wprowadzić odpowiednie zmiany
+
+library(igraph)
+
+dfs(graf1,7) #Zmiana na 7
+DFS <- dfs(graf1,7, parent=T, dist=T) #Zmiana na 7
+DFS
+parent<-as.matrix(DFS$parent) #sklejamy wszystko
+parent
+
+EL<-cbind(1:length(DFS$parent),parent)
+EL<- na.omit(EL) #pomijamy miejsca z brakiem wartosci
+EL
+
+drzewo <- graph_from_edgelist(EL, directed = FALSE)
+plot(drzewo)
+E(graf1)$color<-"black"
+E(graf1)$width<-1
+E(drzewo)$color<-"red"
+E(drzewo)$width<-3
+plot(graf1, vertex.label = V(graf1)$nazwa,layout=layout_in_circle)
+par(new=T) #rysujemy jeden graf na drugim
+plot(drzewo, vertex.label = V(graf1)$nazwa,layout=layout_in_circle)
+
+```
+```{r}
+library(igraph)
+
+E(graf1)$color<-"black"
+E(graf1)$width<-1
+E(drzewo)$color<-"red"
+E(drzewo)$width<-3
+plot(graf1, vertex.label = V(graf1)$nazwa,layout=layout_in_circle)
+par(new=T) #rysujemy jeden graf na drugim
+drzewko <- plot(drzewo, vertex.label = V(graf1)$nazwa,layout=layout_in_circle)
+plot(drzewo)
+plot(compose(drzewo, drzewko, byname = "auto"))
+```
+
+

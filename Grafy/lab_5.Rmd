@@ -1,0 +1,145 @@
+---
+title: "lab5"
+author: "Julia Dudkiewicz"
+date: "2026-11-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(igraph)
+g_dir <- read_graph("C:/Users/student/Documents/STUDENCI/JD/europa_dlaIAD.graphml", format="graphml")
+plot(g_dir)
+which(V(g_dir)$label=='SK') #jaki jest numer wiercholka sk
+
+E(g_dir)[24%->%V(g_dir)] #wszystkie krawedzie z tego wierzcholka
+
+E(g_dir)[24%->%V(g_dir)]$weight #ich wagi
+
+which.max(E(g_dir)[24%->%V(g_dir)]$weight) #ktora z tych krawedzi ma najwieksza wage
+
+E(g_dir)[24%->%V(g_dir)][3] #ktora to krawedz, co jest jej koncem
+
+V(g_dir)[3]$label #jaki to kraj
+
+max(E(g_dir)[24%->%V(g_dir)]$weight) #ile wynosi waga tej krawedzi
+
+E(g_dir)[24%->%V(g_dir)[3]]$weight #ile wynosi waga tej krawedzi
+```
+
+```{r}
+#zadanie
+library(igraph)
+which(V(g_dir)$label=='NL')
+E(g_dir)[V(g_dir)%->%19]
+E(g_dir)[V(g_dir)%->%19]$weight
+which.max(E(g_dir)[V(g_dir)%->%19]$weight)
+V(g_dir)[5]$label
+max(E(g_dir)[V(g_dir)%->%19]$weight)
+E(g_dir)[V(g_dir)%->%19][5]$weight
+ 
+degree(g_dir, v=24, mode='out')
+strength(g_dir, v=24, mode='out')
+
+
+degree(g_dir, v=19, mode='in')
+strength(g_dir, v=19, mode='in')
+ 
+which(V(g_dir)$label=='PL')
+degree(g_dir, v=21, mode='out')
+strength(g_dir, v=21, mode='out')
+degree(g_dir, v=21, mode='in')
+strength(g_dir, v=21, mode='in')
+which.max(E(g_dir)[V(g_dir)%->%21]$weight)
+max(E(g_dir)[V(g_dir)%->%21]$weight)
+E(g_dir)[V(g_dir)%->%21][27]
+V(g_dir)[28]$label
+which.max(E(g_dir)[21%->%V(g_dir)]$weight)
+max(E(g_dir)[21%->%V(g_dir)]$weight)
+
+E(g_dir)[21%->%V(g_dir)][23]
+V(g_dir)[30]$label
+
+V(g_dir)$color <- 'blue'
+V(g_dir)[21]$color <- 'red'
+plot(g_dir, layout = layout_in_circle)
+
+d_in <-strength(g_dir, mode = 'in')
+tkplot(g_dir, vertex.size = 0.001*d_in, layout = layout_in_circle, vertex.color="yellow")
+
+d_out <- degree(g_dir, mode = 'out')
+
+is_connected(g_dir)
+components(g_dir)
+is_connected(g_dir, mode="strong")
+components(g_dir, mode="strong")
+V(g_dir)[which(components(g_dir, mode="strong")$membership == 1)]$label
+ 
+edge_density(g_dir)
+ 
+diameter(g_dir)
+diameter(g_dir, weights = NA)
+
+mean_distance(g_dir, weights = NA)
+```
+```{r}
+bet_dir_dir <- betweenness(g_dir, directed = T, weights = NA)
+bet_dir_dir
+ 
+V(g_dir)$label[order(bet_dir_dir, decreasing = T)]
+ 
+head(V(g_dir)$label[order(bet_dir_dir, decreasing = T)], 5)
+ 
+V(g_dir)$label[which(bet_dir_dir == max(bet_dir_dir))]
+
+closeness(g_dir, mode = c("in"), weights = NA)
+#nwm
+bet_dir_dir <- betweenness(g_dir, directed = T, weights = NA)
+bet_dir_dir
+ 
+V(g_dir)$label[order(bet_dir_dir, decreasing = T)]
+ 
+head(V(g_dir)$label[order(bet_dir_dir, decreasing = T)], 5)
+ 
+V(g_dir)$label[which(bet_dir_dir == max(bet_dir_dir))]
+ 
+clos_undir <- closeness(g_undir)
+
+clos_dir_dir_in <- closeness(g_dir, mode = "in")
+clos_dir_dir_in
+clos_dir_dir_out <- closeness(g_dir, mode = "out")
+clos_dir_dir_out
+clos_dir_undir <- closeness(g_dir, mode = "all", weights = NA)
+clos_dir_undir
+order(clos_dir_undir, decreasing = T)
+sort(clos_dir_undir, decreasing = T)
+V(g_dir)$label[order(clos_dir_undir, decreasing = T)]
+ 
+ 
+eccentricity(g_dir, mode = "in", weights = NA)
+eccentricity(g_dir, mode = "all", weights = NA)
+ 
+ 
+eig_undir <- eigen_centrality(g_dir)
+eig_undir
+
+
+
+V(g_dir)$label[order(eig_dir_dir$vector, decreasing = T)]
+V(g_dir)$label[which(eig_dir_dir$vector == max(eig_dir_dir$vector))]
+ 
+eig_dir_w <- eigen_centrality(g_dir, directed = T)
+eig_dir_w
+ 
+eig_dir_undir <- eigen_centrality(g_dir, directed = F)
+eig_dir_undir
+order(eig_dir_undir)
+sort(eig_dir_undir, decreasing = T)
+V(g_dir)$label[order(eig_dir_w$vector, decreasing = T)]
+```
+
+
+

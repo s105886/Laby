@@ -1,0 +1,60 @@
+---
+title: "laby6"
+author: "Julia Dudkiewicz"
+date: "2026-11-18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(igraph)
+#Wczytanie danych
+dane <- read.table("wikivote.txt", sep="\t", header = FALSE)
+
+#przekształcanie
+macierz <- as.matrix(dane)
+graf <- graph_from_edgelist(macierz, directed = TRUE)
+
+write_graph(graf, file = "wiki-Vote.graphml", format = "graphml")
+
+#Usuwanie wierzchołków o stopniu 0
+graf1 <- delete.vertices(graf, which(degree(g) == 0))
+
+graf1
+#  W otrzymanym grafie wyznaczyć pięciu użytkowników uznanych za publikujących najbardziej wartościowe treści oraz pięciu z tych, którzy mieli największy wpływ na ten wybór.
+#Huby to ci którzy głosowali na autorytety
+
+HITS <- hits_scores(graf1)
+head(sort(HITS$authority, decreasing = T),5)
+head(sort(HITS$hub, decreasing = T),5)
+
+V(graf1)$id[order(HITS$hub, decreasing = T)]
+
+HITS1 <- hits_scores(graf1, scale = F)
+
+sort(HITS1$hub, decreasing = T)
+
+head(V(graf1)[order(HITS$authority, decreasing = T)],5)
+head(V(graf1)[order(HITS$hub, decreasing = T)],5)
+```
+```{r}
+#Zadanie 2
+library(igraph)
+#wczytujemy
+edgelist <- read.csv("londontube_edgelist.csv")
+vertices <- read.csv("londontube_vertices.csv")
+
+#graf nieskierowany
+graf2 <- graph_from_data_frame(d= edgelist, vertices = vertices, directed = FALSE)
+
+View(edgelist)
+View(vertices)
+
+#zapisanie w formacie graphml
+write_graph(graf2, file = "londontube2.graphml", format = "graphml")
+```
+
+
